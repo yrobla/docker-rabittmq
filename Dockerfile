@@ -17,10 +17,6 @@ RUN \
   rabbitmq-plugins enable rabbitmq_management && \
   echo "[{rabbit, [{loopback_users, []}]}]." > /etc/rabbitmq/rabbitmq.config
 
-# install a custom rabbitmq-server that uses CONTAINER_SERVER as an env var
-ADD ./rabbitmq-server /usr/lib/rabbitmq/bin/rabbitmq-server
-RUN chmod 755 /usr/lib/rabbitmq/bin/rabbitmq-server
-
 # Update rabbitmqctl
 ADD ./rabbitmqctl /usr/lib/rabbitmq/bin/rabbitmqctl
 RUN chmod 755 /usr/lib/rabbitmq/bin/rabbitmqctl

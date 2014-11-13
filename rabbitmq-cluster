@@ -1,7 +1,14 @@
 #!/bin/bash
-#CONFIG=$(dig @${DNSSERVER} TXT ${HOST} | grep "^${CONTAINER_SERVER}\." | awk '{ print $5}')
-#CLUSTER=$(echo $CONFIG | gawk -F ";" 'match($0,/rabbitmq_cluster=([^;]+)/,m) {print m[1]}' | sed 's%\\;%%g' | sed 's%"%%g')
-echo "Discovering configuration [$CONFIG]"
+
+# check if we have marathon endpoint
+echo "Starting cluster"
+echo "Endpoint is"
+echo $MARATHON_ENDPOINT
+if [ ! -z "$MARATHON_ENDPOINT" ]; then
+    # curl the url and check if there is a host
+    echo "Discovering configuration from $MARATHON_ENDPOINT"
+    CLUSTER=`curl -X GET -H "Content-Type: application/json" http://$MARATHON_ENDPOINT/v2/apps/yroblarabbitmq | grep -Po '"host":".*?[^"]"' | sed 's/^.*://' | sed 's/^"\(.*\)"$/\1/'`
+fi
 echo "Found cluster [$CLUSTER]"
 echo "Starting RabbitMQ"
 /usr/lib/rabbitmq/bin/rabbitmq-server &

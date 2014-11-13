@@ -7,7 +7,13 @@ echo $MARATHON_ENDPOINT
 if [ ! -z "$MARATHON_ENDPOINT" ]; then
     # curl the url and check if there is a host
     echo "Discovering configuration from $MARATHON_ENDPOINT"
-    CLUSTER=`curl -X GET -H "Content-Type: application/json" http://$MARATHON_ENDPOINT/v2/apps/yroblarabbitmq | grep -Po '"host":".*?[^"]"' | sed 's/^.*://' | sed 's/^"\(.*\)"$/\1/'`
+    HOSTS=`curl -X GET -H "Content-Type: application/json" http://$MARATHON_ENDPOINT/v2/apps/yroblarabbitmq | grep -Po '"host":".*?[^"]"' | sed 's/^.*://' | sed 's/^"\(.*\)"$/\1/'`
+    for entry in $HOSTS
+    do
+        if [ $entry != $HOST ]; then
+            CLUSTER=$domain
+        fi
+    done
 fi
 echo "Found cluster [$CLUSTER]"
 echo "Starting RabbitMQ"

@@ -17,10 +17,6 @@ RUN \
   rabbitmq-plugins enable rabbitmq_management && \
   echo "[{rabbit, [{loopback_users, []}]}]." > /etc/rabbitmq/rabbitmq.config
 
-# Update rabbitmqctl
-ADD ./rabbitmqctl /usr/lib/rabbitmq/bin/rabbitmqctl
-RUN chmod 755 /usr/lib/rabbitmq/bin/rabbitmqctl
-
 # Define environment variables.
 ENV RABBITMQ_LOG_BASE /data/log
 ENV RABBITMQ_MNESIA_BASE /data/mnesia

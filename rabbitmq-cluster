@@ -26,9 +26,13 @@ echo "Running as master"
 else
 echo "Joining cluster at $CLUSTER"
 rabbitmqctl stop_app
+echo "After stop"
 rabbitmqctl reset
+echo "After reset"
 rabbitmqctl join_cluster $CLUSTER
+echo "After join"
 rabbitmqctl start_app
+echo "After start app"
 fi
 # Infinite sleep loop to keep docker backgrounding happy
 while true; do

@@ -24,6 +24,8 @@ RUN chmod 755 /usr/lib/rabbitmq/bin/rabbitmqctl
 # Define environment variables.
 ENV RABBITMQ_LOG_BASE /data/log
 ENV RABBITMQ_MNESIA_BASE /data/mnesia
+ENV RABBITMQ_NODE_PORT 31672
+ENV RABBITMQ_DIST_PORT 31673
 
 # Define mount points.
 VOLUME ["/data/log", "/data/mnesia"]
@@ -33,15 +35,7 @@ WORKDIR /data
 
 # install a script to setup the cluster based on DNS
 ADD ./rabbitmq-cluster /usr/sbin/rabbitmq-cluster
-# expose AMQP port and Management interface and the epmd port, and the inet_dist_listen_min through inet_dist_listen_max ranges
-EXPOSE 5672
-EXPOSE 15672
-EXPOSE 4369
-EXPOSE 9100
-EXPOSE 9101
-EXPOSE 9102
-EXPOSE 9103
-EXPOSE 9104
-EXPOSE 9105
+EXPOSE 31672
+EXPOSE 31673
 # create a shell so we can configure clustering and stuff
 CMD /usr/sbin/rabbitmq-cluster

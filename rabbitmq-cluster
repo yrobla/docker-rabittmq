@@ -6,10 +6,13 @@ if [ ! -z "$MARATHON_ENDPOINT" ]; then
     # curl the url and check if there is a host
     echo "Discovering configuration from $MARATHON_ENDPOINT"
     HOSTS=`curl -X GET -H "Content-Type: application/json" http://$MARATHON_ENDPOINT/v2/apps/yroblarabbitmq | grep -Po '"host":".*?[^"]"' | sed 's/^.*://' | sed 's/^"\(.*\)"$/\1/'`
-    set --junk $HOSTS
     for entry in $HOSTS
     do
-        if [ "$entry"!="$HOST" ]; then
+        echo "entry is"
+        echo $entry
+        echo "host is"
+        echo $HOST
+        if [ "$entry" != "$HOST" ]; then
             CLUSTER=$entry
         fi
     done

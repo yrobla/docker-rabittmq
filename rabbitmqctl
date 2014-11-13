@@ -20,11 +20,6 @@
 # rabbitmqctl starts distribution itself, so we need to make sure epmd
 # is running.
 
-# first check if we have HOST enabled or not
-if [ ! -z "$HOST" ]; then
-    $RABBITMQ_NODENAME=$HOST
-fi
-
 # run script
 ${ERL_DIR}erl ${RABBITMQ_NAME_TYPE} rabbitmqctl-prelaunch-$$ -noinput \
 -eval 'erlang:halt().' -boot "${CLEAN_BOOT_FILE}"
@@ -41,5 +36,4 @@ ${RABBITMQ_CTL_ERL_ARGS} \
 -sasl errlog_type error \
 -mnesia dir "\"${RABBITMQ_MNESIA_DIR}\"" \
 -s rabbit_control_main \
--nodename $RABBITMQ_NODENAME \
 -extra "$@"

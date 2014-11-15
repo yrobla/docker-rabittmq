@@ -5,7 +5,9 @@
 #
 
 # Pull base image.
-FROM dockerfile/ubuntu
+FROM ubuntu:trusty
+RUN apt-get update
+RUN DEBCONF_FRONTEND="noninteractive" apt-get -y --force-yes -o DPkg::Options::="--force-overwrite" -o DPkg::Options::="--force-confdef" install wget pwgen
 
 # Install RabbitMQ.
 RUN \
@@ -33,13 +35,9 @@ WORKDIR /data
 ADD ./rabbitmq-cluster /usr/sbin/rabbitmq-cluster
 
 # set password
-ADD set_rabbitmq_password.sh /set_rabbitmq_password.sh
-
-if [ ! -f /.rabbitmq_password_set ]; then
-    /set_rabbitmq_password.sh
-fi
+ADD ./set_rabbitmq_password.sh /home/set_rabbitmq_password.sh
 
 EXPOSE 31672
 EXPOSE 31673
 # create a shell so we can configure clustering and stuff
-CMD /usr/sbin/rabbitmq-cluster
+CMD /home/set_rabbitmq_password.sh && /usr/sbin/rabbitmq-cluster

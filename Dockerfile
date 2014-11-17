@@ -7,7 +7,7 @@
 # Pull base image.
 FROM ubuntu:trusty
 RUN apt-get update
-RUN DEBCONF_FRONTEND="noninteractive" apt-get -y --force-yes -o DPkg::Options::="--force-overwrite" -o DPkg::Options::="--force-confdef" install wget pwgen
+RUN DEBCONF_FRONTEND="noninteractive" apt-get -y --force-yes -o DPkg::Options::="--force-overwrite" -o DPkg::Options::="--force-confdef" install wget pwgen curl
 
 # Install RabbitMQ.
 RUN \

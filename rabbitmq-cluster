@@ -19,19 +19,19 @@ if [ ! -z "$MARATHON_ENDPOINT" ]; then
 fi
 echo "Found cluster [$CLUSTER]"
 echo "Starting RabbitMQ"
-/usr/lib/rabbitmq/bin/rabbitmq-server &
+sudo service rabbitmq-server start
 sleep 10
 if [[ -z "$CLUSTER" ]]; then
 echo "Running as master"
 else
 echo "Joining cluster at $CLUSTER"
-rabbitmqctl stop_app
+sudo rabbitmqctl stop_app
 echo "After stop"
-rabbitmqctl reset
+sudo rabbitmqctl reset
 echo "After reset"
-rabbitmqctl join_cluster $CLUSTER
+sudo rabbitmqctl join_cluster $CLUSTER
 echo "After join"
-rabbitmqctl start_app
+sudo rabbitmqctl start_app
 echo "After start app"
 fi
 # Infinite sleep loop to keep docker backgrounding happy

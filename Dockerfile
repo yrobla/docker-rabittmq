@@ -37,7 +37,13 @@ ADD ./rabbitmq-cluster /usr/sbin/rabbitmq-cluster
 # set password
 ADD ./set_rabbitmq_password.sh /home/set_rabbitmq_password.sh
 
+# set cookie
+ADD ./cookie  /var/lib/rabbitmq/.erlang.cookie
+RUN chown rabbitmq:rabbitmq /var/lib/rabbitmq/.erlang.cookie
+RUN chmod 600 /var/lib/rabbitmq/.erlang.cookie
+
 EXPOSE 31672
 EXPOSE 31673
+EXPOSE 15672
 # create a shell so we can configure clustering and stuff
 CMD /home/set_rabbitmq_password.sh && /usr/sbin/rabbitmq-cluster

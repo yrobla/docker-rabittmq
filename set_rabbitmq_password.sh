@@ -9,7 +9,7 @@ _word=$( [ ${RABBITMQ_PASS} ] && echo "preset" || echo "random" )
 echo "=> Securing RabbitMQ with a ${_word} password"
 cat > /etc/rabbitmq/rabbitmq.config <<EOF
 [
-{rabbit, [{default_user, <<"$USER">>},{default_pass, <<"$PASS">>},{tcp_listeners, [{"0.0.0.0", 5672}]}]}
+{rabbit, [{default_user, <<"$USER">>},{default_pass, <<"$PASS">>},{tcp_listeners, [{"0.0.0.0", 31672}]}]}
 ].
 EOF
 echo "=> Done!"

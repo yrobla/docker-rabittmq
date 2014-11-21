@@ -5,8 +5,11 @@
 #
 
 # Pull base image.
-FROM ubuntu:trusty
+FROM phusion/baseimage
 RUN apt-get update
+
+RUN /usr/bin/workaround-docker-2267
+
 RUN DEBCONF_FRONTEND="noninteractive" apt-get -y --force-yes -o DPkg::Options::="--force-overwrite" -o DPkg::Options::="--force-confdef" install wget pwgen curl
 
 # Install RabbitMQ.

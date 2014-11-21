@@ -1,6 +1,15 @@
 #!/bin/bash
 
-# check if we have marathon endpoint
+# customize environment
+echo "127.0.0.1 $HOSTNAME" | sudo tee --append /etc/workaround-docker-2267/hosts
+CURRENT_HOST=${HOST//./-}
+echo "127.0.0.1 $CURRENT_HOST" | sudo tee --append /etc/workaround-docker-2267/hosts
+
+echo "NODENAME=rabbit@$CURRENT_HOST" | sudo tee --append /etc/rabbitmq/rabbitmq-env.conf
+echo "NODE_PORT=31672" | sudo tee --append /etc/rabbitmq/rabbitmq-env.conf
+echo "DIST_PORT=31673" | sudo tee --append /etc/rabbitmq/rabbitmq-env.conf
+
+# start rabbit
 echo "Starting cluster"
 if [ ! -z "$MARATHON_ENDPOINT" ]; then
     # curl the url and check if there is a host
@@ -8,10 +17,6 @@ if [ ! -z "$MARATHON_ENDPOINT" ]; then
     HOSTS=`curl -X GET -H "Content-Type: application/json" http://$MARATHON_ENDPOINT/v2/apps/yroblarabbitmq | grep -Po '"host":".*?[^"]"' | sed 's/^.*://' | sed 's/^"\(.*\)"$/\1/'`
     for entry in $HOSTS
     do
-        echo "entry is"
-        echo $entry
-        echo "host is"
-        echo $HOST
         if [ "$entry" != "$HOST" ]; then
             CLUSTER=$entry
         fi
@@ -22,17 +27,21 @@ echo "Starting RabbitMQ"
 sudo service rabbitmq-server start
 sleep 10
 if [[ -z "$CLUSTER" ]]; then
-echo "Running as master"
+    # set ha policy
+    rabbitmqctl set_policy ha-all "" '{"ha-mode":"all","ha-sync-mode":"automatic"}'
 else
-echo "Joining cluster at $CLUSTER"
-sudo rabbitmqctl stop_app
-echo "After stop"
-sudo rabbitmqctl reset
-echo "After reset"
-sudo rabbitmqctl join_cluster $CLUSTER
-echo "After join"
-sudo rabbitmqctl start_app
-echo "After start app"
+    # set entry in hosts for the cluster
+    CURRENT_CLUSTER=${CLUSTER//./-}
+    echo "$CLUSTER $CURRENT_CLUSTER" | sudo tee --append /etc/workaround-docker-2267/hosts
+
+    sudo rabbitmqctl stop_app
+    sudo rabbitmqctl reset
+    sudo rabbitmqctl join_cluster --ram rabbit@$CURRENT_CLUSTER
+    sudo rabbitmqctl start_app
+    sleep 10
+
+    # show cluster status
+    sudo rabbitmqctl cluster_status
 fi
 # Infinite sleep loop to keep docker backgrounding happy
 while true; do

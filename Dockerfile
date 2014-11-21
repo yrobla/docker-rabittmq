@@ -22,17 +22,14 @@ RUN \
   rabbitmq-plugins enable rabbitmq_management && \
   echo "[{rabbit, [{loopback_users, []}]}]." > /etc/rabbitmq/rabbitmq.config
 
+RUN sudo service rabbitmq-server stop
+
 # Define environment variables.
-ENV RABBITMQ_LOG_BASE /data/log
-ENV RABBITMQ_MNESIA_BASE /data/mnesia
 ENV RABBITMQ_NODE_PORT 31672
 ENV RABBITMQ_DIST_PORT 31673
 
 # Define mount points.
-VOLUME ["/data/log", "/data/mnesia"]
-
-# Define working directory.
-WORKDIR /data
+VOLUME ["/var/log/rabbitmq"]
 
 # install a script to setup the cluster based on DNS
 ADD ./rabbitmq-cluster /usr/sbin/rabbitmq-cluster
@@ -47,6 +44,7 @@ RUN chmod 600 /var/lib/rabbitmq/.erlang.cookie
 
 EXPOSE 31672
 EXPOSE 31673
+EXPOSE 4369
 EXPOSE 15672
 # create a shell so we can configure clustering and stuff
 CMD /home/set_rabbitmq_password.sh && /usr/sbin/rabbitmq-cluster

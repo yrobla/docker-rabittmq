@@ -24,6 +24,21 @@ RUN \
 RUN apt-get update && apt-get install -y python python-dev python-pip
 RUN pip install marathon
 
+# install logstash forwarder
+RUN wget -O - http://packages.elasticsearch.org/GPG-KEY-elasticsearch | apt-key add -
+RUN echo 'deb http://packages.elasticsearch.org/logstashforwarder/debian stable main' | sudo tee /etc/apt/sources.list.d/logstashforwarder.list
+RUN apt-get update
+RUN apt-get install logstash-forwarder
+RUN cd /etc/init.d/
+ADD logstash.init /etc/init.d/logstash-forwarder
+RUN chmod +x /etc/init.d/logstash-forwarder
+RUN update-rc.d logstash-forwarder defaults
+
+# add logstash settings
+RUN mkdir certs
+ADD certs/logstash-forwarder.crt certs/
+ADD logstash-forwarder /etc/logstash-forwarder
+
 RUN sudo service rabbitmq-server stop
 
 # Define environment variables.

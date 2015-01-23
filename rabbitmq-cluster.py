@@ -6,6 +6,36 @@ import subprocess
 import time
 
 APP_ID = 'yroblarabbitmq'
+LOGSTASH_CONF_FILE="/etc/logstash-forwarder"
+
+# replace elk_host entry
+def enable_logstash():
+    print "Checking ELK entries\n"
+    endpoint = os.getenv('MARATHON_ENDPOINT')
+    username = os.getenv('MARATHON_HTTP_USER')
+    password = os.getenv('MARATHON_HTTP_PASSWORD')
+    elk_host = None
+    if endpoint:
+        try:
+            print 'Discovering configuration from %s\n' % endpoint
+            c = MarathonClient('https://%s' % endpoint, username=username, password=password)
+            tasks = c.list_tasks('yroblaelk')
+            for task in tasks:
+                if task.started_at:
+                    elk_host = task.host
+                    break
+        except:
+            pass
+
+    # check entries in wsrep_cluster_address
+    if elk_host:
+        print 'Found ELK address %s\n' % elk_host
+        for line in fileinput.input(LOGSTASH_CONF_FILE, inplace=True):
+            line_content = line
+            sys.stdout.write(line.replace("ELK_HOST", elk_host))
+        # reboot logstash
+        subprocess.call(["service", "logstash-forwarder", "restart"])
+
 
 # add extra entry for hosts
 host = os.getenv('HOST')
@@ -26,11 +56,13 @@ with open('/etc/rabbitmq/rabbitmq-env.conf', 'a') as file:
 # start rabbit
 print "Starting cluster"
 endpoint = os.getenv('MARATHON_ENDPOINT')
+username = os.getenv('MARATHON_HTTP_USER')
+password = os.getenv('MARATHON_HTTP_PASSWORD')
 peers = []
 if endpoint:
     try:
         print 'Discovering configuration from %s' % endpoint
-        c = MarathonClient('http://%s' % endpoint)
+        c = MarathonClient('http://%s' % endpoint, username=username, password=password)
         tasks = c.list_tasks(APP_ID)
         for task in tasks:
             if task.started_at and task.host != host:

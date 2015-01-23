@@ -1,0 +1,15 @@
+{
+  "network": {
+    "servers": [ "ELK_HOST:48022" ],
+    "timeout": 15,
+    "ssl ca": "/certs/logstash-forwarder.crt"
+  },
+  "files": [
+    {
+      "paths": [
+        "/var/log/rabbitmq/*.log"
+       ],
+      "fields": { "type": "rabbit" }
+    }
+  ]
+}
